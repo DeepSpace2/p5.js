@@ -1,13 +1,17 @@
-var numOfPoints = 3;
-var numOfIterations = 5000;
-var iterCounter = 0;
-var lastPoint = undefined;
-var vertices = [];
+var numOfIterations;
+var iterCounter;
+var lastPoint;
+var vertices;
+var randVertIdx;
+var prevRandVertIdx;
+var shape;
+
+// DOM
 var iterationsP;
+var radio;
+var nnumIterationsSlider;
 
-
-// "triangle" or "square" for now. later let the user choose
-var shape = "triangle";
+var stopped;
 
 function createVertices(){
     fill(0,0, 255);
@@ -31,20 +35,38 @@ function createVertices(){
         vertices[3].show();
     }
     fill(255);
-    
 }
-
-var randVertIdx
-var prevRandVertIdx
 
 function setup() {
     createCanvas(800, 800);
-    background(51);
-    createVertices();
     iterationsP = createP();
+    nnumIterationsSlider = createSlider(100, 10000, 5000, 100)
+    radio = createRadio();
+    radio.option('triangle');
+    radio.option('square');
+    radio.selected('triangle');
+    radio.changed(setSketch);
+    setSketch();
+}
+
+function setSketch(){
+    background(51);
+    shape = radio.value();
+    numOfIterations = 5000;
+    iterCounter = 0;
+    lastPoint = undefined;
+    vertices = [];
+    randVertIdx = undefined;
+    prevRandVertIdx = undefined;
+    createVertices();
+    if (stopped){
+        stopped = false;
+        loop();
+    }
 }
 
 function draw() {
+    numOfIterations = nnumIterationsSlider.value();
     if (iterCounter < numOfIterations){
         //if no "first point" yet, create it
         if (!lastPoint){
@@ -53,7 +75,6 @@ function draw() {
             lastPoint.show();
             fill(255);
         }
-
 
         // if shape is square, making sure not to choose same vertex twice in a row
         randVertIdx = floor(random(0, vertices.length))
@@ -69,7 +90,6 @@ function draw() {
             prevRandVertIdx = randVertIdx;
         }
 
-
         var randVertex = vertices[randVertIdx];
 
         // finding correct location for new point between lastPoint and correct vertex
@@ -79,10 +99,9 @@ function draw() {
         // drawing new point
         lastPoint = new Vertex(midPointPos);
         lastPoint.show();
-
     }
-
     else{
+        stopped = true;
         noLoop();
     }
 
